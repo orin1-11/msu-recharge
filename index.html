@@ -1,140 +1,190 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Recharge Calculator</title>
+  <title>Arcane Calculator</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 30px;
-    }
-    .card {
+      margin: 0;
+      font-family: Arial;
       background: #1e1e1e;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 500px;
+      color: white;
     }
-    h2 { margin-top: 0; }
-    .row { margin: 10px 0; }
-    input {
-      width: 100%;
-      padding: 6px;
-      margin-top: 4px;
-      border-radius: 6px;
-      border: none;
+
+    .container {
+      display: flex;
+      height: 100vh;
     }
-    .result {
-      margin-top: 20px;
+
+    /* LEFT PANEL */
+    .sidebar {
+      width: 250px;
+      background: #2a2a2a;
       padding: 15px;
-      background: #222;
+      box-sizing: border-box;
+      border-right: 2px solid #444;
+    }
+
+    .map-btn {
+      background: #3a3a3a;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .map-btn:hover {
+      background: #4da6ff;
+    }
+
+    /* RIGHT PANEL */
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .card {
+      background: #2f2f2f;
+      padding: 20px;
       border-radius: 8px;
     }
-    .big {
+
+    .title {
       font-size: 22px;
-      font-weight: bold;
+      margin-bottom: 20px;
+      color: #ffd700;
+    }
+
+    .info {
+      margin-bottom: 10px;
     }
   </style>
 </head>
+
 <body>
 
-<div class="card">
-  <h2>Recharge Dashboard</h2>
+<div class="container">
 
-  <div class="row">
-    Fixed Start Time:
-    <div><strong>2026-02-17 17:40</strong></div>
+  <!-- LEFT SIDE -->
+  <div class="sidebar">
+    <h3>Arcane Maps</h3>
+
+    <div class="map-btn" onclick="loadMap('alley')">
+      Lachelein Alley
+    </div>
+
+    <div class="map-btn" onclick="loadMap('street')">
+      Lachelein Street
+    </div>
+
+    <div class="map-btn" onclick="loadMap('clocktower')">
+      Lachelein Clocktower
+    </div>
   </div>
 
-  <div class="row">
-    Start Amount:
-    <input type="number" id="startAmount" step="0.0001" value="0.6776">
+  <!-- RIGHT SIDE -->
+  <div class="content">
+    <div class="card">
+      <div class="title" id="mapTitle">
+        Select a Map
+      </div>
+
+      <div class="info" id="mapInfo"></div>
+      <div class="info" id="cycleInfo"></div>
+      <div class="info" id="timeLeft"></div>
+    </div>
   </div>
 
-  <div class="row">
-    Cycle (minutes):
-    <input type="number" id="cycleMinutes" value="20">
-  </div>
-
-  <div class="row">
-    Charge per Cycle:
-    <input type="number" id="chargePerCycle" step="0.0001" value="0.0396">
-  </div>
-
-  <div class="result">
-    <div>Current Amount: <span class="big" id="currentAmount">0.0000</span></div>
-    <div>NFT Available: <span id="nftAvailable">0</span></div>
-    <div>Cycles Completed: <span id="cyclesCompleted">0</span></div>
-    <div>Next Target: <span id="nextTarget">1</span></div>
-    <div>Time Until Next Target: <span id="timeRemaining">--</span></div>
-  </div>
 </div>
 
 <script>
-/* ===== FIXED START TIME HERE ===== */
-const startTime = new Date("2026-02-17T17:40:00").getTime();
-/* ================================== */
+/* ===========================
+   MAP DATA CONFIG
+=========================== */
 
-function update() {
-  const now = Date.now();
+const maps = {
+  alley: {
+    name: "Lachelein Alley",
+    startAmount: 0.6776,
+    finalTarget: 1.0,
+    rechargeMinutes: 30,
+    startTime: new Date("2026-02-17T17:40:00").getTime()
+  },
 
-  const startAmount = parseFloat(document.getElementById("startAmount").value);
-  const cycleMinutes = parseFloat(document.getElementById("cycleMinutes").value);
-  const chargePerCycle = parseFloat(document.getElementById("chargePerCycle").value);
+  street: {
+    name: "Lachelein Street",
+    startAmount: 0.5000,
+    finalTarget: 1.2,
+    rechargeMinutes: 20,
+    startTime: new Date("2026-02-17T17:40:00").getTime()
+  },
 
-  const cycleMs = cycleMinutes * 60 * 1000;
-
-  if (now < startTime) {
-    document.getElementById("currentAmount").textContent = startAmount.toFixed(4);
-    document.getElementById("nftAvailable").textContent = Math.floor(startAmount);
-    document.getElementById("cyclesCompleted").textContent = 0;
-    document.getElementById("nextTarget").textContent = Math.floor(startAmount) + 1;
-    document.getElementById("timeRemaining").textContent = "Not started";
-    return;
+  clocktower: {
+    name: "Lachelein Clocktower",
+    startAmount: 0.3000,
+    finalTarget: 0.9,
+    rechargeMinutes: 15,
+    startTime: new Date("2026-02-17T17:40:00").getTime()
   }
+};
 
-  const elapsed = now - startTime;
-  const cyclesCompleted = Math.floor(elapsed / cycleMs);
-  const currentAmount = startAmount + (cyclesCompleted * chargePerCycle);
-  const nftAvailable = Math.floor(currentAmount);
-  const nextTarget = nftAvailable + 1;
+let currentMap = null;
 
-  // ===== CORRECT REMAINING CALCULATION =====
+/* ===========================
+   LOAD MAP
+=========================== */
 
-  const amountNeeded = nextTarget - currentAmount;
-  const cyclesRemaining = Math.ceil(amountNeeded / chargePerCycle);
-
-  const msIntoCurrentCycle = elapsed % cycleMs;
-  const msUntilNextCycle = cycleMs - msIntoCurrentCycle;
-
-  let totalRemainingMs;
-
-  if (cyclesRemaining <= 1) {
-    totalRemainingMs = msUntilNextCycle;
-  } else {
-    totalRemainingMs =
-      msUntilNextCycle + ((cyclesRemaining - 1) * cycleMs);
-  }
-
-  let timeRemaining = "Ready";
-
-  if (totalRemainingMs > 0) {
-    const hours = Math.floor(totalRemainingMs / (1000 * 60 * 60));
-    const minutes = Math.floor((totalRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((totalRemainingMs % (1000 * 60)) / 1000);
-    timeRemaining = `${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  document.getElementById("currentAmount").textContent =
-    currentAmount.toFixed(4);
-  document.getElementById("nftAvailable").textContent = nftAvailable;
-  document.getElementById("cyclesCompleted").textContent = cyclesCompleted;
-  document.getElementById("nextTarget").textContent = nextTarget;
-  document.getElementById("timeRemaining").textContent = timeRemaining;
+function loadMap(key) {
+  currentMap = maps[key];
+  document.getElementById("mapTitle").innerText = currentMap.name;
+  updateCalculator();
 }
 
+/* ===========================
+   CALCULATOR
+=========================== */
 
-setInterval(update, 1000);
+function updateCalculator() {
+  if (!currentMap) return;
+
+  const now = new Date().getTime();
+  const elapsed = now - currentMap.startTime;
+
+  const cycleMs = currentMap.rechargeMinutes * 60 * 1000;
+  const cyclesPassed = Math.floor(elapsed / cycleMs);
+
+  const gained = cyclesPassed * 0.036; // example per cycle
+  const currentAmount = Math.min(
+    currentMap.startAmount + gained,
+    currentMap.finalTarget
+  );
+
+  const nextCycleTime =
+    currentMap.startTime + (cyclesPassed + 1) * cycleMs;
+
+  const timeRemaining = nextCycleTime - now;
+
+  document.getElementById("mapInfo").innerText =
+    "Current Amount: " + currentAmount.toFixed(4);
+
+  document.getElementById("cycleInfo").innerText =
+    "Cycles Passed: " + cyclesPassed;
+
+  if (timeRemaining > 0) {
+    const h = Math.floor(timeRemaining / (1000 * 60 * 60));
+    const m = Math.floor((timeRemaining / (1000 * 60)) % 60);
+    const s = Math.floor((timeRemaining / 1000) % 60);
+
+    document.getElementById("timeLeft").innerText =
+      "Time Until Next Recharge: " +
+      h + "h " + m + "m " + s + "s";
+  } else {
+    document.getElementById("timeLeft").innerText =
+      "Fully Recharged";
+  }
+}
+
+setInterval(updateCalculator, 1000);
 </script>
 
 </body>
