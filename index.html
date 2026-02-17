@@ -37,7 +37,7 @@
     .sidebar-title {
       font-weight: bold;
       margin-bottom: 15px;
-      color: #6fd3ff;
+      color: #9d71d8;
       font-size: 18px;
     }
 
@@ -55,8 +55,23 @@
     }
 
     .map-option.active {
-      background: linear-gradient(to right, #00c6ff, #0072ff);
+      background: linear-gradient(to right, #337b97, #318f92);  
       font-weight: bold;
+    }
+    .stats-panel {
+      position: absolute;
+      top: 40px;
+      right: 60px;
+      background: rgba(0,0,0,0.6);
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .stats-panel div {
+      margin-bottom: 6px;
     }
 
     /* ==========================
@@ -84,9 +99,9 @@
 
     .reward-timer {
       position: absolute;
-      left: 560px;
-      top: 488px;
-      font-size: 16px;
+      left: 350px;
+      top: 465px;
+      font-size: 20px;
       color: #cfcfcf;
       font-weight: bold;
     }
@@ -111,31 +126,6 @@
       text-shadow:
        0 0 5px #fff,
        0 0 2px #00ffff;
-    }
-
-    /* ==========================
-       CALCULATOR PANEL
-    ========================== */
-
-    .calculator {
-      margin: 40px auto;
-      max-width: 600px;
-      background: #1e1e1e;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-
-    .title {
-      font-size: 22px;
-      margin-bottom: 20px;
-      color: #ffd700;
-    }
-
-    .info {
-      margin: 10px 0;
-      font-size: 18px;
     }
 
   </style>
@@ -176,32 +166,12 @@
 
       <div class="overlay">
         <div class="reward-timer" id="timeLeft"></div>
-
-        <div class="item" id="item1">
-          <img src="1703616.png">
-          <div class="count" id="item1Count">0</div>
-        </div>
-
-        <div class="item" id="item2">
-          <img src="1006753.png">
-          <div class="count" id="item2Count">0</div>
-        </div>
-
-        <div class="item" id="item3">
-          <img src="1054367.png">
-          <div class="count" id="item3Count">0</div>
+        <div class="stats-panel">
+          <div id="currentAmount"></div>
+          <div id="nextTargetTime"></div>
         </div>
       </div>
-    </div>
-
-    <!-- ==========================
-         CALCULATOR
-    ========================== -->
-    <div class="calculator">
-      <div class="title" id="calcTitle">Lachelein Alley Calculator</div>
-      <div class="info" id="currentAmount"></div>
-      <div class="info" id="cycles"></div>
-      <div class="info" id="nextTargetTime"></div>
+      
     </div>
 
   </div>
@@ -218,27 +188,33 @@ const maps = {
     name: "Lachelein Alley",
     bg: "bg_alley.png",
     items: [
-      { img: "1703616.png", left: 430, top: 580 },
-      { img: "1006753.png", left: 560, top: 580 },
-      { img: "1054367.png", left: 670, top: 580 }
+      { img: "1703616.png", left: 165, top: 610 },
+      { img: "1006753.png", left: 335, top: 610 },
+      { img: "1054367.png", left: 500, top: 610 },
+      { img: "1074092.png", left: 665, top: 610 },
+      { img: "3140314.png", left: 830, top: 610 },
     ]
   },
   street: {
     name: "Lachelein Street",
     bg: "bg_street.png",
     items: [
-      { img: "itemA.png", left: 450, top: 600 },
-      { img: "itemB.png", left: 600, top: 600 },
-      { img: "itemC.png", left: 750, top: 600 }
+      { img: "1006417.png", left: 165, top: 610 },
+      { img: "1050741.png", left: 335, top: 610 },
+      { img: "1070180.png", left: 500, top: 610 },
+      { img: "1703458.png", left: 665, top: 610 },
+      { img: "3018849.png", left: 830, top: 610 },
     ]
   },
   clocktower: {
     name: "Lachelein Clocktower",
     bg: "bg_clocktower.png",
     items: [
-      { img: "itemX.png", left: 500, top: 620 },
-      { img: "itemY.png", left: 650, top: 620 },
-      { img: "itemZ.png", left: 800, top: 620 }
+      { img: "1006418.png", left: 165, top: 610 },
+      { img: "1051820.png", left: 335, top: 610 },
+      { img: "1071196.png", left: 500, top: 610 },
+      { img: "1103662.png", left: 665, top: 610 },
+      { img: "3135213.png", left: 830, top: 610 },
     ]
   }
 };
@@ -253,16 +229,35 @@ function selectMap(element, key) {
   const map = maps[key];
 
   document.getElementById("mapBg").src = map.bg;
-  document.getElementById("calcTitle").innerText =
-    map.name + " Calculator";
 
+  const overlay = document.querySelector(".overlay");
+
+  // Remove old items
+  document.querySelectorAll(".item").forEach(el => el.remove());
+
+  // Create new items
   map.items.forEach((item, index) => {
-    const div = document.getElementById("item" + (index + 1));
-    div.style.left = item.left + "px";
-    div.style.top = item.top + "px";
-    div.querySelector("img").src = item.img;
+
+    const itemDiv = document.createElement("div");
+    itemDiv.className = "item";
+    itemDiv.style.left = item.left + "px";
+    itemDiv.style.top = item.top + "px";
+
+    const img = document.createElement("img");
+    img.src = item.img;
+
+    const count = document.createElement("div");
+    count.className = "count";
+    count.id = "itemCount" + index;
+    count.innerText = "0";
+
+    itemDiv.appendChild(img);
+    itemDiv.appendChild(count);
+
+    overlay.appendChild(itemDiv);
   });
 }
+
 
 /* ==========================
    CALCULATOR LOGIC
@@ -293,9 +288,9 @@ function updateCalculator() {
 
   const nftAvailable = Math.floor(currentAmount);
 
-  document.getElementById("item1Count").innerText = nftAvailable;
-  document.getElementById("item2Count").innerText = nftAvailable;
-  document.getElementById("item3Count").innerText = nftAvailable;
+  document.querySelectorAll(".count").forEach(count => {
+    count.innerText = nftAvailable;
+  });
 
   const nextTarget = nftAvailable + 1;
   const amountNeeded = nextTarget - currentAmount;
@@ -309,13 +304,13 @@ function updateCalculator() {
   const ss = Math.floor((totalRemainingMs % (1000 * 60)) / 1000);
 
   document.getElementById("nextTargetTime").innerText =
-    "Time Until Next Target: " + h + "h " + mm + "m " + ss + "s";
+    "Time Until Next Recharge: " + h + "h " + mm + "m " + ss + "s";
 
   document.getElementById("currentAmount").innerText =
     "Current Amount: " + currentAmount.toFixed(4);
 
-  document.getElementById("cycles").innerText =
-    "Cycles Passed: " + cyclesPassed;
+  // document.getElementById("cycles").innerText =
+  //   "Cycles Passed: " + cyclesPassed;
 }
 
 setInterval(updateCalculator, 1000);
