@@ -24,13 +24,9 @@
       border-right: 2px solid #444;
     }
 
-    .map-btn {
-      background: #3a3a3a;
-      padding: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: 0.2s;
+    .map-btn:hover {
+      background: #4da6ff;
+      box-shadow: 0 0 10px #4da6ff;
     }
 
     .map-btn:hover {
@@ -44,16 +40,19 @@
     }
 
     .card {
-      background: #2f2f2f;
+      background: url("bg.png") no-repeat center;
+      background-size: cover;
       padding: 20px;
       border-radius: 8px;
+      backdrop-filter: blur(3px);
+      background-color: rgba(0,0,0,0.6);
     }
 
     .title {
-      font-size: 22px;
-      margin-bottom: 20px;
       color: #ffd700;
+      text-shadow: 0 0 8px #ffcc00;
     }
+
 
     .info {
       margin-bottom: 10px;
@@ -189,3 +188,4 @@ setInterval(updateCalculator, 1000);
 
 </body>
 </html>
+
