@@ -1,191 +1,327 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Arcane Calculator</title>
+  <title>MSU Arcane Dashboard</title>
+
   <style>
     body {
       margin: 0;
+      background: #111;
       font-family: Arial;
-      background: #1e1e1e;
       color: white;
     }
 
-    .container {
+    /* ==========================
+       MAIN LAYOUT
+    ========================== */
+
+    .layout {
       display: flex;
-      height: 100vh;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
     }
 
-    /* LEFT PANEL */
+    /* ==========================
+       SIDEBAR (MSU STYLE)
+    ========================== */
+
     .sidebar {
-      width: 250px;
-      background: #2a2a2a;
-      padding: 15px;
-      box-sizing: border-box;
-      border-right: 2px solid #444;
-    }
-
-    .map-btn:hover {
-      background: #4da6ff;
-      box-shadow: 0 0 10px #4da6ff;
-    }
-
-    .map-btn:hover {
-      background: #4da6ff;
-    }
-
-    /* RIGHT PANEL */
-    .content {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .card {
-      background: url("bg.png") no-repeat center;
-      background-size: cover;
-      padding: 20px;
+      width: 240px;
+      background: #1c1c1c;
       border-radius: 8px;
-      backdrop-filter: blur(3px);
-      background-color: rgba(0,0,0,0.6);
+      padding: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .sidebar-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #6fd3ff;
+      font-size: 18px;
+    }
+
+    .map-option {
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      background: #2a2a2a;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .map-option:hover {
+      background: #3a3a3a;
+    }
+
+    .map-option.active {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      font-weight: bold;
+    }
+
+    /* ==========================
+       IMAGE WRAPPER
+    ========================== */
+
+    .image-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .header-img {
+      width: 1200px;
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .reward-timer {
+      position: absolute;
+      left: 560px;
+      top: 488px;
+      font-size: 16px;
+      color: #cfcfcf;
+      font-weight: bold;
+    }
+
+    .item {
+      position: absolute;
+      width: 60px;
+    }
+
+    .item img {
+      width: 100%;
+      display: block;
+    }
+
+    .count {
+      position: absolute;
+      bottom: -35px;
+      right: 25px;
+      font-weight: bold;
+      font-size: 20px;
+      color: white;
+      text-shadow:
+       0 0 5px #fff,
+       0 0 2px #00ffff;
+    }
+
+    /* ==========================
+       CALCULATOR PANEL
+    ========================== */
+
+    .calculator {
+      margin: 40px auto;
+      max-width: 600px;
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      text-align: center;
     }
 
     .title {
+      font-size: 22px;
+      margin-bottom: 20px;
       color: #ffd700;
-      text-shadow: 0 0 8px #ffcc00;
     }
-
 
     .info {
-      margin-bottom: 10px;
+      margin: 10px 0;
+      font-size: 18px;
     }
+
   </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="layout">
 
-  <!-- LEFT SIDE -->
+  <!-- ==========================
+       SIDEBAR
+  ========================== -->
   <div class="sidebar">
-    <h3>Arcane Maps</h3>
 
-    <div class="map-btn" onclick="loadMap('alley')">
+    <div class="sidebar-title">Arc. 190 ~ 240</div>
+
+    <div class="map-option active" onclick="selectMap(this,'alley')">
       Lachelein Alley
     </div>
 
-    <div class="map-btn" onclick="loadMap('street')">
+    <div class="map-option" onclick="selectMap(this,'street')">
       Lachelein Street
     </div>
 
-    <div class="map-btn" onclick="loadMap('clocktower')">
+    <div class="map-option" onclick="selectMap(this,'clocktower')">
       Lachelein Clocktower
     </div>
+
   </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="content">
-    <div class="card">
-      <div class="title" id="mapTitle">
-        Select a Map
+  <!-- ==========================
+       IMAGE SECTION
+  ========================== -->
+  <div>
+
+    <div class="image-wrapper">
+      <img src="bg_alley.png" class="header-img" id="mapBg">
+
+      <div class="overlay">
+        <div class="reward-timer" id="timeLeft"></div>
+
+        <div class="item" id="item1">
+          <img src="1703616.png">
+          <div class="count" id="item1Count">0</div>
+        </div>
+
+        <div class="item" id="item2">
+          <img src="1006753.png">
+          <div class="count" id="item2Count">0</div>
+        </div>
+
+        <div class="item" id="item3">
+          <img src="1054367.png">
+          <div class="count" id="item3Count">0</div>
+        </div>
       </div>
-
-      <div class="info" id="mapInfo"></div>
-      <div class="info" id="cycleInfo"></div>
-      <div class="info" id="timeLeft"></div>
     </div>
-  </div>
 
+    <!-- ==========================
+         CALCULATOR
+    ========================== -->
+    <div class="calculator">
+      <div class="title" id="calcTitle">Lachelein Alley Calculator</div>
+      <div class="info" id="currentAmount"></div>
+      <div class="info" id="cycles"></div>
+      <div class="info" id="nextTargetTime"></div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-/* ===========================
-   MAP DATA CONFIG
-=========================== */
+
+/* ==========================
+   MAP CONFIG
+========================== */
 
 const maps = {
   alley: {
     name: "Lachelein Alley",
-    startAmount: 0.6776,
-    finalTarget: 1.0,
-    rechargeMinutes: 30,
-    startTime: new Date("2026-02-17T17:40:00").getTime()
+    bg: "bg_alley.png",
+    items: [
+      { img: "1703616.png", left: 430, top: 580 },
+      { img: "1006753.png", left: 560, top: 580 },
+      { img: "1054367.png", left: 670, top: 580 }
+    ]
   },
-
   street: {
     name: "Lachelein Street",
-    startAmount: 0.5000,
-    finalTarget: 1.2,
-    rechargeMinutes: 20,
-    startTime: new Date("2026-02-17T17:40:00").getTime()
+    bg: "bg_street.png",
+    items: [
+      { img: "itemA.png", left: 450, top: 600 },
+      { img: "itemB.png", left: 600, top: 600 },
+      { img: "itemC.png", left: 750, top: 600 }
+    ]
   },
-
   clocktower: {
     name: "Lachelein Clocktower",
-    startAmount: 0.3000,
-    finalTarget: 0.9,
-    rechargeMinutes: 15,
-    startTime: new Date("2026-02-17T17:40:00").getTime()
+    bg: "bg_clocktower.png",
+    items: [
+      { img: "itemX.png", left: 500, top: 620 },
+      { img: "itemY.png", left: 650, top: 620 },
+      { img: "itemZ.png", left: 800, top: 620 }
+    ]
   }
 };
 
-let currentMap = null;
+function selectMap(element, key) {
 
-/* ===========================
-   LOAD MAP
-=========================== */
+  document.querySelectorAll(".map-option")
+    .forEach(el => el.classList.remove("active"));
 
-function loadMap(key) {
-  currentMap = maps[key];
-  document.getElementById("mapTitle").innerText = currentMap.name;
-  updateCalculator();
+  element.classList.add("active");
+
+  const map = maps[key];
+
+  document.getElementById("mapBg").src = map.bg;
+  document.getElementById("calcTitle").innerText =
+    map.name + " Calculator";
+
+  map.items.forEach((item, index) => {
+    const div = document.getElementById("item" + (index + 1));
+    div.style.left = item.left + "px";
+    div.style.top = item.top + "px";
+    div.querySelector("img").src = item.img;
+  });
 }
 
-/* ===========================
-   CALCULATOR
-=========================== */
+/* ==========================
+   CALCULATOR LOGIC
+========================== */
+
+const startTime = new Date("2026-02-17T17:40:00").getTime();
+const startAmount = 0.6776;
+const rechargeMinutes = 20;
+const gainPerCycle = 0.0396;
 
 function updateCalculator() {
-  if (!currentMap) return;
 
-  const now = new Date().getTime();
-  const elapsed = now - currentMap.startTime;
+  const now = Date.now();
+  const cycleMs = rechargeMinutes * 60 * 1000;
 
-  const cycleMs = currentMap.rechargeMinutes * 60 * 1000;
+  const elapsed = now - startTime;
   const cyclesPassed = Math.floor(elapsed / cycleMs);
+  const currentAmount = startAmount + (cyclesPassed * gainPerCycle);
 
-  const gained = cyclesPassed * 0.036; // example per cycle
-  const currentAmount = Math.min(
-    currentMap.startAmount + gained,
-    currentMap.finalTarget
-  );
+  const msIntoCurrentCycle = elapsed % cycleMs;
+  const msUntilNextCycle = cycleMs - msIntoCurrentCycle;
 
-  const nextCycleTime =
-    currentMap.startTime + (cyclesPassed + 1) * cycleMs;
+  const m = Math.floor((msUntilNextCycle % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((msUntilNextCycle % (1000 * 60)) / 1000);
 
-  const timeRemaining = nextCycleTime - now;
+  document.getElementById("timeLeft").innerText =
+    m + " min. " + s + " sec. left";
 
-  document.getElementById("mapInfo").innerText =
+  const nftAvailable = Math.floor(currentAmount);
+
+  document.getElementById("item1Count").innerText = nftAvailable;
+  document.getElementById("item2Count").innerText = nftAvailable;
+  document.getElementById("item3Count").innerText = nftAvailable;
+
+  const nextTarget = nftAvailable + 1;
+  const amountNeeded = nextTarget - currentAmount;
+  const cyclesRemaining = Math.ceil(amountNeeded / gainPerCycle);
+
+  let totalRemainingMs =
+    msUntilNextCycle + ((cyclesRemaining - 1) * cycleMs);
+
+  const h = Math.floor(totalRemainingMs / (1000 * 60 * 60));
+  const mm = Math.floor((totalRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
+  const ss = Math.floor((totalRemainingMs % (1000 * 60)) / 1000);
+
+  document.getElementById("nextTargetTime").innerText =
+    "Time Until Next Target: " + h + "h " + mm + "m " + ss + "s";
+
+  document.getElementById("currentAmount").innerText =
     "Current Amount: " + currentAmount.toFixed(4);
 
-  document.getElementById("cycleInfo").innerText =
+  document.getElementById("cycles").innerText =
     "Cycles Passed: " + cyclesPassed;
-
-  if (timeRemaining > 0) {
-    const h = Math.floor(timeRemaining / (1000 * 60 * 60));
-    const m = Math.floor((timeRemaining / (1000 * 60)) % 60);
-    const s = Math.floor((timeRemaining / 1000) % 60);
-
-    document.getElementById("timeLeft").innerText =
-      "Time Until Next Recharge: " +
-      h + "h " + m + "m " + s + "s";
-  } else {
-    document.getElementById("timeLeft").innerText =
-      "Fully Recharged";
-  }
 }
 
 setInterval(updateCalculator, 1000);
+updateCalculator();
+
 </script>
 
 </body>
 </html>
-
