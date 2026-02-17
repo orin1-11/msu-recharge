@@ -2,13 +2,14 @@
 <html>
 <head>
   <title>MSU Arcane Dashboard</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
       background: #111;
       font-family: Arial;
       color: white;
+      overflow-x: auto;
     }
 
     /* ==========================
@@ -84,8 +85,9 @@
     }
 
     .header-img {
-      width: 1200px;
-      display: block;
+      width: 100%;
+      max-width: 1200px;
+      height: auto;
     }
 
     .overlay {
@@ -127,8 +129,38 @@
        0 0 5px #fff,
        0 0 2px #00ffff;
     }
+    @media (max-width: 900px) {
+
+      .layout {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .sidebar {
+        width: 90%;
+      }
+
+      .image-wrapper {
+        width: 100%;
+      }
+
+      .stats-panel {
+        top: 15px;
+        right: 15px;
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .reward-timer {
+        left: 20px;
+        top: 20px;
+        font-size: 14px;
+      }
+
+    }
 
   </style>
+  
 </head>
 
 <body>
